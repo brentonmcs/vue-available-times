@@ -2,11 +2,13 @@
   "name": "available-times",
   "version": "0.1.0",
   "private": true,
+  "main": "dist/rollup-plugin-typescript2.cjs.js",
+  "module": "dist/rollup-plugin-typescript2.es.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "lint": "vue-cli-service lint",
     "test:unit": "jest",
-    "build": "rollup -c build/rollup.config.js --environment BUILD:production"
+    "build": "npm run lint && rollup -c --environment BUILD:production"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -52,9 +54,7 @@
     "eslint-plugin-vue": "^6.1.2",
     "jest": "^25.2.4",
     "rollup": "^1.17.0",
-    "rollup-plugin-buble": "^0.19.8",
-    "rollup-plugin-commonjs": "^10.0.1",
-    "rollup-plugin-typescript": "^1.0.1",
+    "rollup-plugin-typescript2": "^0.27.0",
     "rollup-plugin-vue": "^5.0.1",
     "sass": "^1.25.0",
     "sass-loader": "^8.0.2",

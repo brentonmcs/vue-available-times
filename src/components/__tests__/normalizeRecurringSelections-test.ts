@@ -25,8 +25,8 @@ it('converts minutes-since-week-start to static dates', () => {
     )
   ).toEqual([
     {
-      start: start,
-      end: end,
+      start,
+      end,
     },
   ])
 })

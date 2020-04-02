@@ -1,5 +1,5 @@
 import vue from 'rollup-plugin-vue'
-import typescript from 'rollup-plugin-typescript'
+import typescript from 'rollup-plugin-typescript2'
 
 export default {
   input: 'src/Components/AvailableTimes.vue',
@@ -9,13 +9,7 @@ export default {
   },
   external: ['vue', 'moment', 'moment-timezone', 'vue-property-decorator'],
   plugins: [
-    typescript({
-      tsconfig: false,
-      experimentalDecorators: true,
-      module: 'es2015',
-    }),
-    vue({
-      defaultLang: { script: 'ts' },
-    }),
+    typescript({ verbosity: 2, abortOnError: false, clean: false }),
+    vue({ css: true }),
   ],
 }

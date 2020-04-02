@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div :class="componentClass" :style="componentStyle">
     <div class="grayed block" :style="grayBlockTopStyle" />
     <div class="grayed block" :style="grayBlockSecondStyle" />

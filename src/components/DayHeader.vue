@@ -1,4 +1,4 @@
-<template lang="html">
+<template>
   <div class="dayheader-component" :style="headerStyle">
     <div class="day" :class="isAvailable" v-if="hideDates">
       <div v-if="availableWidth < 55">

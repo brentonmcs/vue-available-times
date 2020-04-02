@@ -1,5 +1,5 @@
 <template>
-  <div class="rulercomponent" :style="componentStyle">
+  <div class="component" :style="componentStyle">
     <div v-for="hour in hourList" :key="hour" class="hour" :style="hourStyle">
       <div class="inner">
         {{ hour !== '00' && hour !== '12am' ? hour : null }}
@@ -35,18 +35,19 @@ export default class Ruler extends Vue {
 }
 </script>
 
-<style>
-.rulercomponent {
+<style scoped>
+.component {
   flex-shrink: 0;
   position: relative;
   background-color: #fff;
 }
-.rulercomponent .hour {
+
+.hour {
   text-align: right;
   padding: 2px 5px;
 }
 
-.rulercomponent .inner {
+.inner {
   transform: translateY(-70%);
 }
 </style>

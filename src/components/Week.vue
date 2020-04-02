@@ -1,5 +1,5 @@
 <template>
-  <div id="week" class="week-component">
+  <div id="week" class="component">
     <div class="header" :style="headerStyle">
       <div class="allDayLabel">All-day</div>
       <DayHeader
@@ -236,7 +236,7 @@ export default class Week extends Vue {
 </script>
 
 <style>
-.week-component {
+.component {
   display: flex;
   flex-direction: column;
   height: 100%;

@@ -1,12 +1,7 @@
 import momentTimezone from 'moment-timezone'
-import { Event } from './models'
+import { Event, GroupEvents } from './models'
 import hasOverlap from './hasOverlap'
 
-export interface GroupEvents {
-  start: Date | string | number
-  end: Date | string | number
-  columns: Event[][]
-}
 function compareDates(a: Event, b: Event) {
   return a.start < b.start ? -1 : 1
 }

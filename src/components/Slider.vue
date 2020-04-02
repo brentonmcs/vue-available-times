@@ -1,8 +1,5 @@
 <template>
-  <div id="slider" class="slider-component">
-    <!-- v-touch:start="handleTouchStart"
-      v-touch:moving="handleTouchMove"
-      v-touch:end="handleTouchEnd" -->
+  <div id="slider" class="component">
     <div
       v-for="(week, i) in weeks"
       :key="i"
@@ -104,14 +101,14 @@ export default class Slider extends Vue {
 </script>
 
 <style>
-.slider-component {
+.component {
   position: absolute;
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
 
-.slider-component .item {
+.component .item {
   transition: transform 0.2s;
   position: absolute;
   width: 100%;

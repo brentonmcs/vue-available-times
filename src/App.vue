@@ -2,7 +2,7 @@
   <div id="app">
     <AvailableTimes
       :calendars="calendars"
-      onChange="onChange"
+      @onchange="onChange"
       height="800"
       :availableDays="['monday', 'tuesday', 'wednesday', 'thursday', 'friday']"
       :availableHourRange="{ start: 9, end: 19 }"

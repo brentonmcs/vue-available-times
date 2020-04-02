@@ -6,6 +6,7 @@
     @mousemove="handleMouseMove"
     @mouseup="handleMouseUp"
     @mouseleave="handleMouseUp"
+    @mouseout="handleMouseUp"
     @click="handleComponentDelete"
   >
     <div :class="title" :style="titleStyle">
@@ -86,7 +87,6 @@ export default class TimeSlot extends Vue {
 
   handleMouseDown(event: Event) {
     if (this.frozen || this.touchToDelete === false) {
-      console.log('timeslot - handleMouseDown')
       event.stopPropagation()
       this.moving = true
       this.$emit('on-move-start', { end: this.end, start: this.start }, event)
@@ -97,23 +97,22 @@ export default class TimeSlot extends Vue {
     if (!this.moving) {
       return
     }
-    if (this.frozen || this.touchToDelete === false) {
-      console.log('timeslot - handleMouseMoving')
-
-      this.$emit('on-moving', event)
+    if (this.frozen || this.touchToDelete === true) {
+      return
     }
+    event.stopPropagation()
+    this.$emit('on-moving', event)
   }
 
   handleMouseUp(event: Event) {
     if (!this.moving) {
       return
     }
-    if (this.frozen || this.touchToDelete === false) {
-      console.log('timeslot - handleMouseUp')
-
-      this.$emit('on-moved', event)
-      this.moving = false
+    if (this.frozen || this.touchToDelete === true) {
+      return
     }
+    this.$emit('on-moved', event)
+    this.moving = false
   }
 
   handleComponentDelete(event: Event) {
@@ -146,13 +145,6 @@ export default class TimeSlot extends Vue {
     }
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  get titleStyle() {
-    return {
-      lineHeight: `${MINUTE_IN_PIXELS * 30 - BOTTOM_GAP / 2}px`,
-    }
-  }
-
   get componentClass(): string[] {
     const result = ['timeslot-component']
     if (this.frozen) result.push('frozen')
@@ -160,8 +152,14 @@ export default class TimeSlot extends Vue {
     return result
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  get titleStyle() {
+    return {
+      lineHeight: `${MINUTE_IN_PIXELS * 30 - BOTTOM_GAP / 2}px`,
+    }
+  }
+
   formatTime(date: Date) {
-    // const { timeConvention, timeZone, frozen } = this.props
     const m = momentTimezone.tz(date, this.timeZone)
     if (this.timeConvention === '12h') {
       if (this.frozen && m.minute() === 0) {
@@ -176,9 +174,7 @@ export default class TimeSlot extends Vue {
   }
 
   get timespan() {
-    return [this.formatTime(this.start), '-', this.formatTime(this.end)].join(
-      ''
-    )
+    return `${this.formatTime(this.start)} - ${this.formatTime(this.end)}`
   }
 }
 </script>

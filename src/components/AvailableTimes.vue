@@ -1,34 +1,33 @@
 <template>
-  <div id="availableTimes" class="component" :style="componentStyle">
+  <div
+    id="availableTimes"
+    class="component"
+    :style="{
+      width: `${width}px`,
+      height: `${height}px`,
+    }"
+  >
     <div class="inner">
       <div class="main">
         <Slider
           :index="currentWeekIndex"
-          @onslide="move"
           :disabled="recurring"
           :weeks="weeks"
+          @onslide="move"
         >
           <template v-slot:week="{ week, i }">
-            <div
-              v-if="
-                (recurring || Math.abs(i - currentWeekIndex) > 1) && i !== 0
-              "
-            >
-              <span :key="week.start.toDateString()" />
-            </div>
-
             <Week
-              v-else
+              v-if="!showNextWeek(i)"
               :time-convention="timeConvention"
               :time-zone="timeZone"
               :available-width="availableWidth"
-              :availableDays="availableDays"
+              :available-days="availableDays"
               :week="week"
               :available-hour-range="availableHourRange"
               :recurring="recurring"
               :events="[]"
               :initial-selections="stateSelections"
-              :touchToDeleteSelection="touchToDeleteSelection"
+              :touch-to-delete-selection="touchToDeleteSelection"
             />
           </template>
         </Slider>
@@ -86,7 +85,7 @@ export default class AvailableTimes extends Vue {
 
   @Prop({ default: 'ontouchstart' in window }) touchToDeleteSelection!: boolean
 
-  timeConvention = '24h'
+  @Prop({ default: '24h' }) timeConvention!: string
 
   availableWidth = 10
 
@@ -94,24 +93,95 @@ export default class AvailableTimes extends Vue {
 
   weeks: WeekModel[] = []
 
-  selections!: Map<string, Event[]>
+  selections: Map<string, Event[]> = new Map<string, Event[]>()
 
   eventStore!: EventStore
 
   events!: Event[]
 
-  get componentStyle() {
-    return {
-      width: `${this.width}px`,
-      height: `${this.height}px`,
+  stateSelections: Event[] = []
+
+  showNextWeek(i: number) {
+    return (
+      (this.recurring || Math.abs(i - this.currentWeekIndex) > 1) && i !== 0
+    )
+  }
+
+  mounted() {
+    this.eventStore = new EventStore(
+      this.calendars,
+      this.timeZone,
+      this.onEventsRequested,
+      () => {
+        this.events = this.eventStore.get(
+          this.weeks[this.currentWeekIndex].start
+        )
+      }
+    )
+
+    this.weeks = this.expandWeeks(this.weeks, 0)
+    this.availableWidth = this.$el.clientWidth
+    window.addEventListener('resize', this.handleWindowResize)
+
+    if (this.initialSelections) {
+      const normaliszedSelections = normalizeRecurringSelections(
+        this.initialSelections,
+        this.timeZone,
+        this.weekStartsOn
+      )
+
+      this.stateSelections = normaliszedSelections
+
+      normaliszedSelections.forEach((selection) => {
+        const week = weekAt(this.weekStartsOn, selection.start, this.timeZone)
+        const existing: Event[] =
+          this.selections.get(week.start.toDateString()) || []
+        existing.push(selection)
+        this.selections.set(week.start.toDateString(), existing)
+      })
     }
   }
 
-  get week() {
-    return this.weeks[0]
+  handleWindowResize() {
+    this.availableWidth = this.$el.clientWidth
   }
 
-  stateSelections: Event[] = []
+  handleWeekChange(week: WeekModel, weekSelections: Event[]) {
+    this.selections.set(week.start.toDateString(), weekSelections)
+    const newSelections = this.triggerOnChange()
+    this.stateSelections = newSelections
+  }
+
+  triggerOnChange() {
+    const { recurring, timeZone, weekStartsOn, selections } = this
+    const newSelections = flatten(selections)
+
+    if (recurring) {
+      const startingFirstWeek = newSelections.filter(
+        ({ start }) => start < this.weeks[0].end
+      )
+      this.$emit(
+        'on-change',
+        startingFirstWeek.map((selection) =>
+          makeRecurring(selection, timeZone, weekStartsOn)
+        )
+      )
+    } else {
+      this.$emit('on-change', newSelections)
+    }
+    return newSelections
+  }
+
+  move(increment: number) {
+    const nextIndex = this.currentWeekIndex + increment
+    if (nextIndex < 0) {
+      return
+    }
+
+    this.weeks = this.expandWeeks(this.weeks, nextIndex)
+    this.currentWeekIndex = nextIndex
+    this.events = this.eventStore.get(this.weeks[nextIndex].start)
+  }
 
   expandWeeks(weeks: WeekModel[], weekIndex: number) {
     if (weeks.length - weekIndex > WEEKS_PER_TIMESPAN) {
@@ -148,84 +218,6 @@ export default class AvailableTimes extends Vue {
       )
     }
     return weekAt(this.weekStartsOn, new Date(), this.timeZone)
-  }
-
-  mounted() {
-    this.eventStore = new EventStore(
-      this.calendars,
-      this.timeZone,
-      this.onEventsRequested,
-      () => {
-        this.events = this.eventStore.get(
-          this.weeks[this.currentWeekIndex].start
-        )
-      }
-    )
-
-    this.weeks = this.expandWeeks(this.weeks, 0)
-
-    this.availableWidth = this.$el.clientWidth
-    window.addEventListener('resize', this.handleWindowResize)
-
-    this.selections = new Map<string, Event[]>()
-    if (this.initialSelections) {
-      const normaliszedSelections = normalizeRecurringSelections(
-        this.initialSelections,
-        this.timeZone,
-        this.weekStartsOn
-      )
-
-      this.stateSelections = normaliszedSelections
-
-      normaliszedSelections.forEach((selection) => {
-        const week = weekAt(this.weekStartsOn, selection.start, this.timeZone)
-        const existing: Event[] =
-          this.selections.get(week.start.toDateString()) || []
-        existing.push(selection)
-        this.selections.set(week.start.toDateString(), existing)
-      })
-    }
-  }
-
-  handleWeekChange(week: WeekModel, weekSelections: Event[]) {
-    this.selections.set(week.start.toDateString(), weekSelections)
-    const newSelections = this.triggerOnChange()
-    this.stateSelections = newSelections
-  }
-
-  triggerOnChange() {
-    const { recurring, timeZone, weekStartsOn } = this
-    const newSelections = flatten(this.selections)
-
-    if (recurring) {
-      const startingFirstWeek = newSelections.filter(
-        ({ start }) => start < this.weeks[0].end
-      )
-      this.$emit(
-        'on-change',
-        startingFirstWeek.map((selection) =>
-          makeRecurring(selection, timeZone, weekStartsOn)
-        )
-      )
-    } else {
-      this.$emit('on-change', newSelections)
-    }
-    return newSelections
-  }
-
-  move(increment: number) {
-    const nextIndex = this.currentWeekIndex + increment
-    if (nextIndex < 0) {
-      return
-    }
-
-    this.weeks = this.expandWeeks(this.weeks, nextIndex)
-    this.currentWeekIndex = nextIndex
-    this.events = this.eventStore.get(this.weeks[nextIndex].start)
-  }
-
-  handleWindowResize() {
-    this.availableWidth = this.$el.clientWidth
   }
 }
 </script>

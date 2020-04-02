@@ -36,3 +36,9 @@ export interface Event {
   width?: number
   offset?: number
 }
+
+export interface GroupEvents {
+  start: Date | string | number
+  end: Date | string | number
+  columns: Event[][]
+}

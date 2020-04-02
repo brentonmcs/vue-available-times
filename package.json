@@ -5,15 +5,36 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "test:unit": "jest"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "ts",
+      "json",
+      "vue"
+    ],
+    "transform": {
+      ".*\\.(vue)$": "vue-jest",
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "testURL": "http://localhost/"
   },
   "dependencies": {
     "core-js": "^3.6.4",
+    "moment": "^2.18.1",
+    "moment-timezone": "^0.5.13",
     "vue": "^2.6.11",
-    "vue-class-component": "^7.2.2",
-    "vue-property-decorator": "^8.3.0"
+    "vue-property-decorator": "^8.4.1",
+    "vue2-hammer": "^2.1.2"
   },
   "devDependencies": {
+    "@types/moment-timezone": "^0.5.13",
+    "@types/hammerjs": "^2.0.36",
+    "@types/jest": "^25.1.4",
+    "@types/vue2-hammer": "^2.1.0",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
     "@typescript-eslint/parser": "^2.18.0",
     "@vue/cli-plugin-babel": "~4.2.0",
@@ -21,13 +42,20 @@
     "@vue/cli-plugin-typescript": "~4.2.0",
     "@vue/cli-service": "~4.2.0",
     "@vue/eslint-config-airbnb": "^5.0.2",
+    "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^5.0.1",
+    "@vue/test-utils": "^1.0.0-beta.32",
+    "babel-core": "^6.24.1",
     "eslint": "^6.7.2",
     "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-vue": "^6.1.2",
+    "jest": "^25.2.4",
     "sass": "^1.25.0",
     "sass-loader": "^8.0.2",
-    "typescript": "~3.7.5",
+    "ts-jest": "^25.3.0",
+    "typescript": "^3.8.3",
+    "vue-jest": "^3.0.5",
     "vue-template-compiler": "^2.6.11"
   }
 }

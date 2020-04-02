@@ -7,6 +7,7 @@ module.exports = {
     'plugin:vue/essential',
     '@vue/airbnb',
     '@vue/typescript/recommended',
+    '@vue/prettier',
   ],
   parserOptions: {
     ecmaVersion: 2020,
@@ -14,5 +15,7 @@ module.exports = {
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'comma-dangle': ['error', 'only-multiline'],
+    '@typescript-eslint/member-delimiter-style': 'off',
   },
-};
+}

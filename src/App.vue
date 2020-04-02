@@ -1,20 +1,49 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <AvailableTimes
+      :calendars="calendars"
+      onChange="onChange"
+      height="800"
+      :availableDays="['monday', 'tuesday', 'wednesday', 'thursday', 'friday']"
+      :availableHourRange="{ start: 9, end: 19 }"
+      :recurring="true"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from './components/HelloWorld.vue';
-
+import { Component, Vue } from 'vue-property-decorator'
+import AvailableTimes from './components/AvailableTimes.vue'
 @Component({
   components: {
-    HelloWorld,
+    AvailableTimes,
   },
 })
-export default class App extends Vue {}
+export default class App extends Vue {
+  calendars = [
+    {
+      id: 'work',
+      title: 'Work',
+      foregroundColor: '#ff00ff',
+      backgroundColor: '#f0f0f0',
+      selected: true,
+    },
+    {
+      id: 'work2',
+      title: 'Work2',
+      foregroundColor: '#00ff00',
+      backgroundColor: '#f0f0f0',
+      selected: true,
+    },
+  ]
+
+  // eslint-disable-next-line class-methods-use-this
+  onChange(selections: { start: Date; end: Date }[]) {
+    selections.forEach(({ start, end }) => {
+      console.log('Start:', start, 'End:', end)
+    })
+  }
+}
 </script>
 
 <style lang="scss">

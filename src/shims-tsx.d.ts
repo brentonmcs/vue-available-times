@@ -1,13 +1,16 @@
-import Vue, { VNode } from 'vue';
+/* eslint @typescript-eslint/no-unused-vars: ["off"] */
+/* eslint no-unused-vars: ["off"] */
+/* eslint @typescript-eslint/no-explicit-any: ["off"] */
+/* eslint @typescript-eslint/no-empty-interface: ["off"] */
+
+import Vue, { VNode } from 'vue'
 
 declare global {
   namespace JSX {
-    // tslint:disable no-empty-interface
     interface Element extends VNode {}
-    // tslint:disable no-empty-interface
     interface ElementClass extends Vue {}
     interface IntrinsicElements {
-      [elem: string]: any;
+      [elem: string]: any
     }
   }
 }

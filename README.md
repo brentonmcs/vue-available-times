@@ -1,24 +1,7 @@
-# available-times
+# Vue Available Times
 
-## Project setup
-```
-npm install
-```
+A Vue component that allows a user to select time-slots in a calendar-like UI.
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+Heavily inspired by https://github.com/trotzig/react-available-times
 
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+This is still a work in progress - it's mostly feature compatible with the React version

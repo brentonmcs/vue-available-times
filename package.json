@@ -1,14 +1,25 @@
 {
-  "name": "available-times",
-  "version": "0.1.0",
-  "private": true,
-  "main": "dist/rollup-plugin-typescript2.cjs.js",
-  "module": "dist/rollup-plugin-typescript2.es.js",
+  "name": "vue-available-times",
+  "author": {
+    "name": "Brenton M"
+  },
+  "description": "Vue component for creating a available times week view",
+  "version": "0.1.5",
+  "main": "dist/available-times.umd.js",
+  "module": "dist/available-times.esm.js",
+  "unpkg": "dist/available-times.min.js",
+  "types": "types/index.d.ts",
+  "browser": {
+    "./sfc": "src/components/AvailableTimes.vue"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "lint": "vue-cli-service lint",
     "test:unit": "jest",
-    "build": "npm run lint && rollup -c --environment BUILD:production"
+    "build": "npm run build:unpkg && npm run build:es && npm run build:umd",
+    "build:umd": "cross-env NODE_ENV=production rollup --config rollup.config.js --format umd --file dist/available-times.umd.js",
+    "build:es": "cross-env NODE_ENV=production rollup --config rollup.config.js --format es --file dist/available-times.esm.js",
+    "build:unpkg": "cross-env NODE_ENV=production rollup --config rollup.config.js --format iife --file dist/available-times.min.js"
   },
   "jest": {
     "moduleFileExtensions": [

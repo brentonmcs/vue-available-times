@@ -4,8 +4,13 @@ import typescript from 'rollup-plugin-typescript2'
 export default {
   input: 'src/Components/AvailableTimes.vue',
   output: {
-    format: 'esm',
-    file: 'dist/available-times.js',
+    exports: 'named',
+    name: 'AvailableTimes',
+    globals: {
+      moment: 'moment',
+      'moment-timezone': 'momentTimezone',
+      'vue-property-decorator': 'vuePropertyDecorator',
+    },
   },
   external: ['vue', 'moment', 'moment-timezone', 'vue-property-decorator'],
   plugins: [

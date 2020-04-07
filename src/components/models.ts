@@ -35,6 +35,7 @@ export interface Event {
   allDay?: boolean
   width?: number
   offset?: number
+  title?: string
 }
 
 export interface GroupEvents {

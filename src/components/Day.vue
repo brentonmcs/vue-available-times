@@ -4,7 +4,7 @@
     <div class="grayed block" :style="grayBlockSecondStyle" />
     <div v-if="events">
       <TimeSlot
-        v-for="(e, i) in events.find((x) => !x.allDay)"
+        v-for="(e, i) in nonAllDayEvents"
         :key="i"
         :timeConvention="timeConvention"
         :timeZone="timeZone"
@@ -14,7 +14,7 @@
         :title="e.title"
         :width="e.width"
         :offset="e.offset"
-        frozen
+        :frozen="true"
       />
     </div>
 
@@ -46,8 +46,6 @@
       @on-move-start="
         (timeslot, e) => handleItemModification('both', timeslot, e)
       "
-      @on-moving="handleMouseMove"
-      @on-moved="handleMouseUp"
       @on-delete="handleDelete"
       :touchToDelete="touchToDeleteSelection"
     />
@@ -67,6 +65,7 @@ import { Event as EventModel } from './models'
 
 const ROUND_TO_NEAREST_MINS = 15
 
+const DEFAULT_VAL = -9999
 @Component({
   components: {
     TimeSlot,
@@ -98,29 +97,38 @@ export default class DayComponent extends Vue {
 
   @Prop() touchToDeleteSelection!: boolean
 
-  edge: string | undefined
+  edge = ''
 
   selections: { start: Date; end: Date }[] = []
 
-  minLengthInMinutes: number | undefined
+  minLengthInMinutes = -1
 
-  lastKnownPosition: number | undefined
+  lastKnownPosition = -1
 
-  target!: { offsetTop: number; offsetHeight: number } | null
-
-  stateIndex: number | undefined
-
-  get isActive() {
-    return typeof this.stateIndex !== 'undefined'
+  target: { offsetTop: number; offsetHeight: number } = {
+    offsetTop: DEFAULT_VAL,
+    offsetHeight: DEFAULT_VAL,
   }
 
-  touch!:
-    | { startX: number; startY: number; currentY?: number; currentX?: number }
-    | undefined
+  stateIndex = -1
+
+  get nonAllDayEvents() {
+    return this.events.filter((x) => !x.allDay)
+  }
+
+  get isActive() {
+    return this.stateIndex > -1
+  }
+
+  touch: {
+    startX: number
+    startY: number
+    currentY?: number
+    currentX?: number
+  } = { startX: DEFAULT_VAL, startY: DEFAULT_VAL }
 
   mounted() {
     this.selections = this.initialSelections || []
-    this.stateIndex = undefined
   }
 
   onPanning(e: {
@@ -279,7 +287,7 @@ export default class DayComponent extends Vue {
   handleTouchMove(e: { type: string; pageX: number; pageY: number }) {
     if (e.type === 'mousemove') {
       this.handleMouseMove(e)
-    } else if (this.touch) {
+    } else {
       this.touch.currentY = e.pageX
       this.touch.currentX = e.pageY
     }
@@ -291,7 +299,6 @@ export default class DayComponent extends Vue {
       return
     }
 
-    if (!this.touch) return
     const { startY, currentY, startX, currentX } = this.touch
     if (
       Math.abs(startX - (currentX || startX)) < 20 &&
@@ -302,7 +309,7 @@ export default class DayComponent extends Vue {
         this.handleMouseUp()
       })
     }
-    this.touch = undefined
+    this.touch = { startY: DEFAULT_VAL, startX: DEFAULT_VAL }
   }
 
   handleMouseDown(e: { pageY: number }) {
@@ -347,11 +354,11 @@ export default class DayComponent extends Vue {
   }
 
   handleMouseMove({ pageY }: { pageY: number }) {
-    if (typeof this.stateIndex === 'undefined') {
+    if (this.stateIndex === -1) {
       return
     }
 
-    if (this.target) {
+    if (this.target.offsetTop !== DEFAULT_VAL) {
       console.log(
         `Moving ${this.stateIndex} to ${pageY} edge ${this.edge} target top ${this.target.offsetTop}`
       )
@@ -371,8 +378,6 @@ export default class DayComponent extends Vue {
         toDate(date, this.lastKnownPosition || 0, timeZone).getTime()
       let newStart = new Date(selection.start.getTime() + diff)
       let newEnd = new Date(selection.end.getTime() + diff)
-
-      if (this.target === null) return
 
       if (hasOverlap(this.selections, newStart, newEnd, this.stateIndex)) {
         return
@@ -414,16 +419,14 @@ export default class DayComponent extends Vue {
   }
 
   handleMouseUp() {
-    if (typeof this.stateIndex === 'undefined') {
+    if (this.stateIndex === -1) {
       return
     }
 
-    console.log('Mouse Up')
-
-    this.edge = undefined
-    this.stateIndex = undefined
-    this.lastKnownPosition = undefined
-    this.minLengthInMinutes = undefined
+    this.edge = ''
+    this.stateIndex = -1
+    this.lastKnownPosition = DEFAULT_VAL
+    this.minLengthInMinutes = DEFAULT_VAL
 
     this.$emit('on-change', this.index, this.selections)
   }

@@ -3,10 +3,6 @@
     :class="componentClass"
     :style="componentStyle"
     @mousedown="handleMouseDown"
-    @mousemove="handleMouseMove"
-    @mouseup="handleMouseUp"
-    @mouseleave="handleMouseUp"
-    @mouseout="handleMouseUp"
     @click="handleComponentDelete"
   >
     <div :class="title" :style="titleStyle">
@@ -62,8 +58,6 @@ export default class TimeSlot extends Vue {
 
   @Prop({ default: false }) touchToDelete!: boolean
 
-  moving = false
-
   handleDelete(event: Event) {
     console.log('timeslot - handleDelete')
     if (new Date().getTime() - this.creationTime < 500) {
@@ -88,31 +82,8 @@ export default class TimeSlot extends Vue {
   handleMouseDown(event: Event) {
     if (this.frozen || this.touchToDelete === false) {
       event.stopPropagation()
-      this.moving = true
       this.$emit('on-move-start', { end: this.end, start: this.start }, event)
     }
-  }
-
-  handleMouseMove(event: Event) {
-    if (!this.moving) {
-      return
-    }
-    if (this.frozen || this.touchToDelete === true) {
-      return
-    }
-    event.stopPropagation()
-    this.$emit('on-moving', event)
-  }
-
-  handleMouseUp(event: Event) {
-    if (!this.moving) {
-      return
-    }
-    if (this.frozen || this.touchToDelete === true) {
-      return
-    }
-    this.$emit('on-moved', event)
-    this.moving = false
   }
 
   handleComponentDelete(event: Event) {
@@ -189,7 +160,7 @@ export default class TimeSlot extends Vue {
   cursor: grab;
 }
 
-.timeslot-component .active {
+.timeslot-component.active {
   pointer-events: none;
 }
 
@@ -212,7 +183,7 @@ export default class TimeSlot extends Vue {
   display: block;
 }
 
-.timeslot-component .frozen {
+.timeslot-component.frozen {
   background-color: #d6dfe5;
   border-left: 1px solid #acacac;
   color: #3d464d;

@@ -57,7 +57,7 @@ export default class DayHeader extends Vue {
 
   get allDayEvents() {
     if (this.events && this.events.length > 0) {
-      return this.events.filter(({ allDay }) => allDay)
+      return this.events.filter((x) => x.allDay === true)
     }
     return []
   }

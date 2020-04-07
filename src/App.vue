@@ -1,49 +1,18 @@
 <template>
   <div id="app">
-    <AvailableTimes
-      :calendars="calendars"
-      @onchange="onChange"
-      height="800"
-      :availableDays="['monday', 'tuesday', 'wednesday', 'thursday', 'friday']"
-      :availableHourRange="{ start: 9, end: 19 }"
-      :recurring="true"
-    />
+    <TestAvailableCalendar />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import AvailableTimes from './components/AvailableTimes.vue'
+import TestAvailableCalendar from './Test.vue'
 @Component({
   components: {
-    AvailableTimes,
+    TestAvailableCalendar,
   },
 })
-export default class App extends Vue {
-  calendars = [
-    {
-      id: 'work',
-      title: 'Work',
-      foregroundColor: '#ff00ff',
-      backgroundColor: '#f0f0f0',
-      selected: true,
-    },
-    {
-      id: 'work2',
-      title: 'Work2',
-      foregroundColor: '#00ff00',
-      backgroundColor: '#f0f0f0',
-      selected: true,
-    },
-  ]
-
-  // eslint-disable-next-line class-methods-use-this
-  onChange(selections: { start: Date; end: Date }[]) {
-    selections.forEach(({ start, end }) => {
-      console.log('Start:', start, 'End:', end)
-    })
-  }
-}
+export default class App extends Vue {}
 </script>
 
 <style lang="scss">

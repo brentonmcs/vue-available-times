@@ -1,4 +1,4 @@
-import momentTimezone from 'moment-timezone'
+import momentTimezone, { Moment } from 'moment-timezone'
 
 import weekAt from './weekAt'
 
@@ -39,6 +39,7 @@ export default function normalizeRecurringSelections(
 
     startM.add(start, 'minutes')
     endM.add(end, 'minutes')
+
     return {
       start: startM.toDate(),
       end: endM.toDate(),

@@ -33,7 +33,7 @@
           :date="day.date"
           :events="dayEvents[i]"
           :initialSelections="daySelections[i]"
-          @onchange="handleDayChange"
+          @on-change="handleDayChange"
           :hourLimits="generateHourLimits"
           :touchToDeleteSelection="touchToDeleteSelection"
         />
@@ -41,6 +41,7 @@
     </div>
   </div>
 </template>
+
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 
@@ -140,10 +141,6 @@ export default class Week extends Vue {
     end: number
   }
 
-  dayEvents: Event[][] = []
-
-  daySelections: Event[][] = []
-
   daysWidth = 10
 
   widthOfAScrollbar = 0
@@ -169,19 +166,29 @@ export default class Week extends Vue {
     return (this.availableWidth - RULER_WIDTH_IN_PIXELS) / 7
   }
 
-  mounted() {
-    window.addEventListener('resize', this.setDaysWidth)
-
-    this.dayEvents = weekEvents({
+  get dayEvents() {
+    return weekEvents({
       week: this.week,
       items: this.events,
       timeZone: this.timeZone,
     })
-    this.daySelections = weekEvents({
-      week: this.week,
-      items: this.initialSelections,
-      timeZone: this.timeZone,
-    })
+  }
+
+  private privDaySelections!: Event[][]
+
+  get daySelections() {
+    if (!this.privDaySelections) {
+      this.privDaySelections = weekEvents({
+        week: this.week,
+        items: this.initialSelections,
+        timeZone: this.timeZone,
+      })
+    }
+    return this.privDaySelections
+  }
+
+  mounted() {
+    window.addEventListener('resize', this.setDaysWidth)
 
     // TODO: Need to check this
     if (this.$refs.daysWrapper instanceof Element) {
@@ -197,8 +204,9 @@ export default class Week extends Vue {
   }
 
   handleDayChange(dayIndex: number, selections: Event[]) {
-    this.daySelections[dayIndex] = selections
+    this.privDaySelections[dayIndex] = selections
     const flattened = flatten(this.daySelections)
+    debugger
     this.$emit('on-change', this.week, flattened)
   }
 

@@ -1,6 +1,5 @@
 <template>
   <div
-    id="availableTimes"
     class="component"
     :style="{
       width: `${width}px`,
@@ -8,6 +7,34 @@
     }"
   >
     <div class="inner">
+      <div v-if="!recurring" class="toolbar">
+        <div class="buttons">
+          <button class="button" @click="move(-1)">
+            <svg height="24" viewBox="0 0 24 24" width="24">
+              <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" />
+              <path d="M0-.5h24v24H0z" fill="none" />
+            </svg>
+          </button>
+          {{ ' ' }}
+          <button class="button" @click="move(1)">
+            <svg height="24" viewBox="0 0 24 24" width="24">
+              <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" />
+              <path d="M0-.25h24v24H0z" fill="none" />
+            </svg>
+          </button>
+        </div>
+        <div class="interval">
+          {{ currentWeekInterval }}
+        </div>
+
+        <!-- <div v-if="calendars && calendars.length > 0" class="calendarSelector">
+          <CalendarSelector
+            :calendars="calendars"
+            :selectedCalendars="selectedCalendars"
+            @on-change="handleCalendarChange"
+          />
+        </div> -->
+      </div>
       <div class="main">
         <Slider
           :index="currentWeekIndex"
@@ -25,9 +52,10 @@
               :week="week"
               :available-hour-range="availableHourRange"
               :recurring="recurring"
-              :events="[]"
+              :events="events"
               :initial-selections="stateSelections"
               :touch-to-delete-selection="touchToDeleteSelection"
+              @on-change="handleWeekChange"
             />
           </template>
         </Slider>
@@ -47,6 +75,8 @@ import normalizeRecurringSelections from './normalizeRecurringSelections'
 
 import Week from './Week.vue'
 import Slider from './Slider.vue'
+import CalendarSelector from './CalendarSelector.vue'
+
 import makeRecurring from './makeRecurring'
 
 function flatten(selections: Map<string, Event[]>) {
@@ -58,7 +88,7 @@ function flatten(selections: Map<string, Event[]>) {
   return result
 }
 
-@Component({ components: { Week, Slider } })
+@Component({ components: { Week, Slider, CalendarSelector } })
 export default class AvailableTimes extends Vue {
   @Prop({ default: 'sunday' }) weekStartsOn!: string
 
@@ -91,15 +121,42 @@ export default class AvailableTimes extends Vue {
 
   currentWeekIndex = 0
 
-  weeks: WeekModel[] = []
+  weeks: WeekModel[] = this.expandWeeks([], 0)
 
   selections: Map<string, Event[]> = new Map<string, Event[]>()
 
-  eventStore!: EventStore
+  events: Event[] = []
 
-  events!: Event[]
+  stateSelections: Event[] = this.recurring
+    ? normalizeRecurringSelections(
+        this.initialSelections || [],
+        this.timeZone,
+        this.weekStartsOn
+      )
+    : this.initialSelections
 
-  stateSelections: Event[] = []
+  eventStore = new EventStore(
+    this.calendars,
+    this.timeZone,
+    this.onEventsRequested,
+    this.handleChange
+  )
+
+  get currentWeekInterval() {
+    if (this.weeks && this.weeks.length > 0) {
+      return this.weeks[this.currentWeekIndex].interval || ''
+    }
+    return ''
+  }
+
+  get selectedCalendars() {
+    return this.calendars.filter(({ selected }) => selected).map(({ id }) => id)
+  }
+
+  handleCalendarChange(selectedCalendars: string[]) {
+    debugger
+    this.eventStore.updateSelectedCalendars(selectedCalendars)
+  }
 
   showNextWeek(i: number) {
     return (
@@ -107,39 +164,21 @@ export default class AvailableTimes extends Vue {
     )
   }
 
-  mounted() {
-    this.eventStore = new EventStore(
-      this.calendars,
-      this.timeZone,
-      this.onEventsRequested,
-      () => {
-        this.events = this.eventStore.get(
-          this.weeks[this.currentWeekIndex].start
-        )
-      }
-    )
+  handleChange() {
+    this.events = this.eventStore.get(this.weeks[this.currentWeekIndex].start)
+  }
 
-    this.weeks = this.expandWeeks(this.weeks, 0)
+  mounted() {
     this.availableWidth = this.$el.clientWidth
     window.addEventListener('resize', this.handleWindowResize)
 
-    if (this.initialSelections) {
-      const normaliszedSelections = normalizeRecurringSelections(
-        this.initialSelections,
-        this.timeZone,
-        this.weekStartsOn
-      )
-
-      this.stateSelections = normaliszedSelections
-
-      normaliszedSelections.forEach((selection) => {
-        const week = weekAt(this.weekStartsOn, selection.start, this.timeZone)
-        const existing: Event[] =
-          this.selections.get(week.start.toDateString()) || []
-        existing.push(selection)
-        this.selections.set(week.start.toDateString(), existing)
-      })
-    }
+    this.stateSelections.forEach((selection: Event) => {
+      const week = weekAt(this.weekStartsOn, selection.start, this.timeZone)
+      const existing: Event[] =
+        this.selections.get(week.start.toDateString()) || []
+      existing.push(selection)
+      this.selections.set(week.start.toDateString(), existing)
+    })
   }
 
   handleWindowResize() {
@@ -147,6 +186,7 @@ export default class AvailableTimes extends Vue {
   }
 
   handleWeekChange(week: WeekModel, weekSelections: Event[]) {
+    debugger
     this.selections.set(week.start.toDateString(), weekSelections)
     const newSelections = this.triggerOnChange()
     this.stateSelections = newSelections

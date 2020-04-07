@@ -12,7 +12,6 @@ export default function getIncludedEvents(
   if (!events || events.length === 0) {
     return []
   }
-  debugger
 
   return events.filter(({ start, end, allDay }) => {
     if (allDay) {

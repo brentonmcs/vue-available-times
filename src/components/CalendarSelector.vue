@@ -75,7 +75,6 @@ export default class CalendarSelector extends Vue {
   }
 
   toggleOpen(event: Event) {
-    debugger
     event.stopPropagation()
     this.open = !this.open
   }

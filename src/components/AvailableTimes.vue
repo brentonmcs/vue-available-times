@@ -154,7 +154,6 @@ export default class AvailableTimes extends Vue {
   }
 
   handleCalendarChange(selectedCalendars: string[]) {
-    debugger
     this.eventStore.updateSelectedCalendars(selectedCalendars)
   }
 
@@ -186,7 +185,6 @@ export default class AvailableTimes extends Vue {
   }
 
   handleWeekChange(week: WeekModel, weekSelections: Event[]) {
-    debugger
     this.selections.set(week.start.toDateString(), weekSelections)
     const newSelections = this.triggerOnChange()
     this.stateSelections = newSelections

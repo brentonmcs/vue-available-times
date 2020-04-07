@@ -206,7 +206,6 @@ export default class Week extends Vue {
   handleDayChange(dayIndex: number, selections: Event[]) {
     this.privDaySelections[dayIndex] = selections
     const flattened = flatten(this.daySelections)
-    debugger
     this.$emit('on-change', this.week, flattened)
   }
 
